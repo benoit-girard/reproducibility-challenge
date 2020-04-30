@@ -29,6 +29,15 @@ metadata.tex: metadata.yaml
 article.pdf: article.tex content.tex bibliography.bib metadata.tex rescience.cls
 	latexmk -pdf -pdflatex="xelatex -interaction=nonstopmode" -use-make article.tex
 
+content.tex: content.org
+#	emacs -batch $^  --funcall org-babel-tangle
+	emacs -batch --eval "(require 'package)" --eval "(package-initialize)"       \
+        --eval "(setq enable-local-eval t)" --eval "(setq enable-local-variables t)" \
+        $^ --funcall org-latex-export-to-latex
+	mv $@ $@.bak
+	cat $@.bak | perl uggly_tex_body_filter.pl > $@
+	rm -f $@.bak
+
 clean:
 	@latexmk -CA
 	@rm -f *.bbl

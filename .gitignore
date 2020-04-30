@@ -8,4 +8,9 @@
 *.bcf
 *.run.xml
 *.out
+*~
 
+content.tex
+/article.fdb_latexmk
+/article.fls
+__pycache__/*
