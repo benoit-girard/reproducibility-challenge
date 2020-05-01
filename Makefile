@@ -35,7 +35,7 @@ content.tex: content.org
         --eval "(setq enable-local-eval t)" --eval "(setq enable-local-variables t)" \
         $^ --funcall org-latex-export-to-latex
 	mv $@ $@.bak
-	cat $@.bak | perl uggly_tex_body_filter.pl | sed 's/{verbatim}/{VerbatimOutput}/g' | sed 's/begin{minted}\[\(.*\)\]{\(.*\)}$$/begin{minted}[\1,label={\\rule{.86\\linewidth}{0.5pt}~\\fcolorbox{black}{white}{\\makebox[0pt][l]{\2}\\phantom{shell}}~\\rule{.03\\linewidth}{0.5pt}}]{\2}}/' > $@
+	cat $@.bak | perl uggly_tex_body_filter.pl | sed 's/{verbatim}/{VerbatimOutput}/g' | sed 's/begin{minted}\[\(.*\)\]{\(.*\)}$$/begin{minted}[\1,label={\\rule{.86\\linewidth}{0.5pt}~\\fcolorbox{black}{white}{\\makebox[0pt][l]{\2}\\phantom{shell}}~\\rule{.03\\linewidth}{0.5pt}}]{\2}/' > $@
 	rm -f $@.bak
 
 clean:
