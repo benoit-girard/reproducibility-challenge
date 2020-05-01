@@ -22,8 +22,8 @@ entry was available on HAL. The preprint was hosted on our [[http://mescal.imag.
 visible only through the [[https://simgrid.org/publications.html][SimGrid publication webpage]].
 
 #+LaTeX: \begin{result} 
-  The original article has thus been uploaded on [[https://hal.inria.fr/inria-00361031][HAL]] when engaging in
- the replication process.
+ The PDF version of the original article has thus been uploaded on
+ [[https://hal.inria.fr/inria-00361031][HAL]] when engaging in the replication process.
 #+LaTeX: \end{result}
 
 *  Historical Context
@@ -242,8 +242,8 @@ topology and data used in the third series of experiments*.
    =PUBLISHED/09_validation_simutools= directory. 
 
    #+LaTeX: \begin{result} 
-     We have now made the source of the article available in the [[https://github.com/alegrand/reproducibility-challenge/tree/master/simutools09/article/][github
-     repository attached to this Rescience submission]].
+     We have now made the \LaTeX source of the article available in
+     the [[https://github.com/alegrand/reproducibility-challenge/tree/master/simutools09/article/][github repository attached to this Rescience submission]].
    #+LaTeX: \end{result}
  - We know that we made our instructions on how conduct these
    experiments available somewhere but no link was given in the
@@ -268,8 +268,8 @@ topology and data used in the third series of experiments*.
    but as we had recovered it, we have not put additional efforts.
 
    #+LaTeX: \begin{result} 
-     We have now made the instructions and data available in the
-     [[https://github.com/alegrand/reproducibility-challenge/tree/master/simutools09/instructions][GitHub repository attached to this Rescience submission]].
+     We have now made the instructions and data used in the original
+     article available in the [[https://github.com/alegrand/reproducibility-challenge/tree/master/simutools09/instructions][GitHub repository attached to this Rescience submission]].
    #+LaTeX: \end{result}
 
    #+BEGIN_EXPORT latex
@@ -298,15 +298,24 @@ topology and data used in the third series of experiments*.
  - Arnaud Legrand therefore started searching again for gtnets
    versions that would be on his laptop and finally found it, along
    with all the patches and compiling instructions which are crucial
-   to correctly build such prototype software. These information were
-   actually public but had become completely hidden in the (now
-   unmaintained and long forgotten) contrib section of the SVN (while
-   git is now the default version manager) of the Inria Gforge SimGrid
-   project.
+   to correctly build such prototype software (see
+   Figure \ref{fig:README2}. These information were actually public
+   but had become completely hidden in the (now unmaintained and long
+   forgotten) contrib section of the SVN (while git is now the default
+   version manager) of the Inria Gforge SimGrid project.
+
+   #+BEGIN_EXPORT latex
+   \begin{figure}
+     \centering
+     \VerbatimInput[label=\fbox{\color{black}simutools09/README.patching\_GTNetS}]{simutools09/README.patching_GTNetS}
+     \caption{dfd}
+     \label{fig:README2}
+   \end{figure}
+   #+END_EXPORT
 
    #+LaTeX: \begin{result} 
-     *We have now ensured that this piece of software is archived on
-     Software Heritage.*\footnote{The save request was done on 4/30/2020, 6:50:02 PM but it is still pending.}
+   *We have now ensured that the GTNetS version and the patches we
+   used are archived on Software Heritage.*\footnote{The save request was done on 4/30/2020, 6:50:02 PM but it is still pending.}
    #+LaTeX: \end{result}
 
 In the end, we have thus managed to recover three important archives,
@@ -418,11 +427,16 @@ activated this a long time ago to run some old proprietary code.
 Booting the machine while adding ~vsyscall=emulate~ to the kernel
 command line allows ~debuerreotype~ to build the desired rootfs.
 
-Since this is a bit far-fetched, I decided to check whether
+Since this is a bit far-fetched, we decided to check whether
 ready-to-use Docker images were available on the Docker Hub, [[https://hub.docker.com/r/lpenz/debian-lenny-i386/][which is
 the case]]. After playing a bit interactively in this Docker image
-trying to install everything I needed to build GTNetS and SimGrid, I
-ended up with the Dockerfile presented in Figure \ref{fig:dockerfile}.
+trying to install everything we needed to build GTNetS and SimGrid,
+and following the patching and compiling instructions, we ended up
+with the Dockerfile presented in Figure \ref{fig:dockerfile}.  The
+image can be simply build with the following command:
+#+begin_src shell :results output :exports both
+docker build -t alegrand/simgrid3_3_gtnets simgrid3.3_gtnets
+#+end_src
 
    #+BEGIN_EXPORT latex
    \begin{figure}
@@ -433,10 +447,6 @@ ended up with the Dockerfile presented in Figure \ref{fig:dockerfile}.
    \end{figure}
    #+END_EXPORT
 
-This image can be simply build with the following command:
-#+begin_src shell :results output :exports both
-docker build -t alegrand/simgrid3_3_gtnets simgrid3.3_gtnets
-#+end_src
 
 #+LaTeX: \begin{result} 
   We have now an automated way to build a minimalistic environment

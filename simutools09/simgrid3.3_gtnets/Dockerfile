@@ -37,4 +37,4 @@ RUN cd /root/simgrid-3.3/ && \
     ldconfig && \
     make
 
-RUN apt clean
+RUN apt-get clean
