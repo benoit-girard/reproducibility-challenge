@@ -6,14 +6,15 @@ author: Pedro Velho
 Note About this Patch
 ---------------------
 This patch is intended to work only with GTNetS downloaded from the GTNetS website link:
-http://www.ece.gatech.edu/research/labs/MANIACS/GTNetS/software/gtnets-current.zip The last time
-this patch was downloaded was June 12 2008, Seems they don't have much control about new GTNetS and
-some other flaws it is difficult to precise a verison number.
+http://www.ece.gatech.edu/research/labs/MANIACS/GTNetS/software/gtnets-current.zip The last
+time this patch was downloaded was June 12 2008, Seems they don't have much control about
+new GTNetS and some other flaws it is difficult to precise a verison number.
 
 Getting GTNetS
 --------------
 Two ways of getting GTNetS, one from the gtnets website and svn simgrid contrib projec tree
 (RECOMMENDED).
+
 $ wget http://www.ece.gatech.edu/research/labs/MANIACS/GTNetS/software/gtnets-current.zip
 or 
 $ svn checkout svn://scm.gforge.inria.fr/svn/simgrid/contrib/trunk/GTNetS/
@@ -28,8 +29,8 @@ Compilling GTNetS
 -----------------
 Enter directory
 $ cd gtnets-current
-GTNetS is not a very active project for the moment and the portabillity is really limitated.  For
-the moment we tried out this patch only in linux platforms using:
+GTNetS is not a very active project for the moment and the portabillity is really limitated.
+For the moment we tried out this patch only in linux platforms using:
 
 gcc (GCC) 4.1.3 20070629 (prerelease) (Debian 4.1.2-13) Linux 2.6.21-2-686
 
@@ -43,21 +44,21 @@ To compile optimized version
 $ make opt
 
 === WARNING ===
-A lot of warnings are expected but the application should compile just fine. If the makefile insists
-in compiling some QT libraries please try a make clean before asking for help.
+A lot of warnings are expected but the application should compile just fine. If the makefile
+insists in compiling some QT libraries please try a make clean before asking for help.
 
 Installing GTNetS
 -----------------
-Commands make debug and opt generates respectivelly libgtsim-opt.so or libgtsim-debug.so.  You will
-need to link ONLY ONE of these libraries using the simbolic link name libgtnets.so, for instance to
-libgtsim-debug.so:
+Commands make debug and opt generates respectivelly libgtsim-opt.so or libgtsim-debug.so.
+You will need to link ONLY ONE of these libraries using the simbolic link name libgtnets.so,
+for instance to libgtsim-debug.so:
 # ln -sf libgtsim-debug.so /<userhome>/usr/lib/libgtnets.so
-'libsimgrid.so' is the name simgrid is configured to search when running ./configure script.  Now
-just put the library somewhere you know ldd is searching
-(tip: export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/<userhome>/usr/lib/libgtnets.so && sudo ldconfig)
+'libsimgrid.so' is the name simgrid is configured to search when running ./configure script.
+Now just put the library somewhere you know ldd is searching (tip: export
+LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/<userhome>/usr/lib/libgtnets.so && sudo ldconfig)
 
-The gtnets source headers are necessary. So you need to copy all headers to a place where your
-compiler can find them, such as:
+The gtnets source headers are necessary. So you need to copy all headers to a place where
+your compiler can find them, such as:
 $ mkdir /<userhome>/usr/include/gtnets
 $ cp -fr SRC/*.h /<userhome>/usr/include/gtnets
 
@@ -69,7 +70,7 @@ Bug reports, comments, suggestions: pedro.velho{\at}imag.fr
 
 AMD64 bit patch
 ---------------
-Some users experienced some problems during compilation on AMD64 bit architecture.  We compiled
+Some users experienced some problems during compilation on AMD64 bit architecture. We compiled
 succesfully the gtnets-current package in an:
 
 model name      : AMD Opteron(tm) Processor 248

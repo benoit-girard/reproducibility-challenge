@@ -20,8 +20,8 @@ work.
 The first action we took is related to the visibility and availabiliy
 of this article. Open access was not mandated by the funders of this
 research at the time of publication and the only the bibliography
-entry was available on HAL. The preprint was hosted on our [[http://mescal.imag.fr/membres/arnaud.legrand/articles/simutools09.pdf][webpage]] and
-visible only through the [[https://simgrid.org/publications.html][SimGrid publication webpage]].
+entry was available on HAL. The preprint was hosted on the webpage of
+[[http://mescal.imag.fr/membres/pedro.velho/publications.html][both]] [[http://mescal.imag.fr/membres/arnaud.legrand/articles/simutools09.pdf][authors]] and visible mostly through the [[https://simgrid.org/publications.html][SimGrid publication webpage]].
 
 #+LaTeX: \begin{result} 
  The PDF version of the original article has thus been uploaded on
@@ -257,8 +257,8 @@ topology and data used in the third series of experiments*.
    which finally only hosts data on two articles from 2011). However
    after inspecting the [[https://web.archive.org/web/20091120124838/http://simgrid.gforge.inria.fr/doc/contrib.html][Internet Archive]], we could not find it.
  - Arnaud Legrand therefore tried them on his laptop but although he
-   could find many related files (including the topology generators) he
-   failed finding the right data and doing so, he realized many the
+   could find many related files (including the topology generators)
+   he failed finding the right data and doing so, he realized many the
    data of some of his previously published articles were dangling
    links and had not been correctly transfered when migrating from a
    laptop to an other! The instructions could probably have been
@@ -266,8 +266,11 @@ topology and data used in the third series of experiments*.
    Velho and to ask him whether his own backups were in better shape,
    which was fortunately the case. Pedro Velho could find all the
    required data (a 61MB zip archive) and shared it through
-   dropbox. This data may be still available somewhere on the Internet
-   but as we had recovered it, we have not put additional efforts.
+   dropbox. It turned out that we later realized that this archive was
+   also available from [[http://mescal.imag.fr/membres/pedro.velho/publications.html][Pedro Velho's former webpage]], which is still
+   available but which is not highly ranked on search engines and
+   which he cannot modify anymore as he does not work for the same
+   company anymore.
 
    #+LaTeX: \begin{result} 
      We have now made the instructions and data used in the original
@@ -275,7 +278,7 @@ topology and data used in the third series of experiments*.
    #+LaTeX: \end{result}
 
    #+BEGIN_EXPORT latex
-   \begin{figure}
+   \begin{figure}[!htbp]
      \centering
      \VerbatimInput[label=\fbox{\color{black}simutools09/instructions/README}]{simutools09/instructions/README}
      \caption{The README which accompanies instructions recovered from Pedro Velho on the 
@@ -309,9 +312,10 @@ topology and data used in the third series of experiments*.
    version manager) of the Inria Gforge SimGrid project.
 
    #+BEGIN_EXPORT latex
-   \begin{figure}
-     \centering
-     \VerbatimInput[label=\fbox{\color{black}simutools09/README.patching\_GTNetS}]{simutools09/README.patching_GTNetS}
+   \begin{figure}[!htbp]
+     \centering\vspace{-.5cm}
+     \VerbatimInput[framesep=1em, label=\fbox{\color{black}simutools09/README.patching\_GTNetS}]{simutools09/README.patching_GTNetS}
+     \centering\vspace{-.5cm}
      \caption{The README which accompanies the GTNetS patches provides many critical information on
           how to compile GTNetS and SimGrid.}
      \label{fig:README2}
@@ -373,8 +377,9 @@ a subdirectory pretending you are root. The =keyring= argument passed to
 these old packages even if they have been signed by package
 maintainers which are currently not active anymore. Unfortunately,
 although this approach worked like a charm for more recent target
-dates (e.g., =2015-06-04-T10:47:50Z=), it miserably fails with a
-"Segmentation fault" when installing =base-passwd:=
+#+LaTeX: dates (e.g., \texttt{2015-06-04-\discretionary{}{}{}T10:47:50Z}), 
+it miserably fails with a "Segmentation fault" when installing
+=base-passwd:=
 #+LaTeX: \bgroup\footnotesize
 #+BEGIN_EXAMPLE
 W: Failure trying to run: chroot "/home/alegrand/Work/Documents/Articles/2020/
@@ -388,8 +393,8 @@ error: 'debootstrap' failed!
 #+LaTeX: \egroup
 
 We then decided to cry for help and asked two Debian guru friends,
-Vincent Danjean and Samuel Thibault. Samuel indicated me that he would
-investigate this by simply using
+Vincent Danjean and Samuel Thibault. Samuel Thibault indicated me that
+he had investigated this by using the simpler following command:
 #+LaTeX: \bgroup\footnotesize
 #+begin_src shell :results output :exports both
   debootstrap wheezy myroot http://archive.debian.org/debian/
@@ -407,18 +412,19 @@ and that the error message was then slightly more visible
   Version: 1.16.18
   #+END_EXAMPLE
 #+LaTeX: \egroup
-When bootstraping such an image, we try to use old debian packages
-with a recent =dpkg= (the one running on our machine) so it is not
-surprising that it may break. After all, the internal format of Debian
-packages could have evolved and may not be supported anymore with
-recent versions of =dpkg=. Likewise, it is somehow a matter of luck that
-an old binary still works with a recent kernel... Indeed, when using
-docker or similar container-based approach, we only divert syscalls so
-if the ABI of the Linux kernel had changed in the meantime, binary
-codes would simply fail to run. Fortunately, such changes are quite
-rare and the Linux/Debian community is making incredible efforts to
-provide super stable backward compatible software so what could be the
-reason behind this failure?
+The problem actually comes from =dpkg=. When bootstraping such an image,
+we try to use old debian packages with a recent =dpkg= (the one running
+on our machine) so it is not surprising that it may break. After all,
+the internal format of Debian packages could have evolved and may not
+be supported anymore with recent versions of =dpkg=. Likewise, it is
+somehow a matter of luck that an old binary still works with a recent
+kernel... Indeed, when using docker or similar container-based
+approach, we only divert syscalls so if the ABI of the Linux kernel
+had changed in the meantime, binary codes would simply fail to
+run. Fortunately, such changes are quite rare and the Linux/Debian
+community is making incredible efforts to provide super stable
+backward compatible software so what could be the reason behind this
+failure?
 
 Surprisingly Vincent Danjean reported me that the command worked like
 a charm for him, which means some local configuration of my or from
@@ -438,13 +444,13 @@ the case]]. After playing a bit interactively in this Docker image
 trying to install everything we needed to build GTNetS and SimGrid,
 and following the patching and compiling instructions, we ended up
 with the Dockerfile presented in Figure \ref{fig:dockerfile}.  The
-image can be simply build with the following command:
+image can be simply built with the following command:
 #+begin_src shell :results output :exports both
 docker build -t alegrand/simgrid3_3_gtnets simgrid3.3_gtnets
 #+end_src
 
    #+BEGIN_EXPORT latex
-   \begin{figure}
+   \begin{figure}[!htb]
      \centering
      \VerbatimInput[label=\fbox{\color{black}simutools09/simgrid3.3\_gtnets/Dockerfile}]{simutools09/simgrid3.3_gtnets/Dockerfile}
      \caption{The Dockerfile recipe which allows to build both GTNetS and Simgrid}
@@ -457,7 +463,7 @@ docker build -t alegrand/simgrid3_3_gtnets simgrid3.3_gtnets
   comprising the simulation code used in the original article. This
   Dockerfile recipe has been made available in the [[https://github.com/alegrand/reproducibility-challenge/tree/master/simutools09/simgrid3.3_gtnets/][GitHub repository
   attached to this Rescience submission]]. The resulting docker image
-  has been made available on the [[https://hub.docker.com/repository/docker/alegrand38/simgrid3_3_gtnets][DockerHub]]. It can be recovered using:
+  has been made available on the [[https://hub.docker.com/repository/docker/alegrand38/simgrid3_3_gtnets][DockerHub]]. It can be recovered using:\rm
   #+begin_src shell :results output :exports both
   docker pull alegrand38/simgrid3_3_gtnets
   #+end_src
@@ -478,10 +484,10 @@ the next reproducibility challenge in a decade or so.
    to note that the logs of each simulation was stored in the archive
    (in =log/=) as well as the parsing of these logs (in =dat/=).
    #+BEGIN_EXPORT latex
-   \begin{figure}
+   \begin{figure}[!htbp]
      \centering
      \VerbatimInput[label=\fbox{\color{black}simutools09/instructions/01-onelink/README}]{simutools09/instructions/01-onelink/README}
-     \caption{The README which the first set of experiments.}
+     \caption{The README which ships with the first set of experiments.}
      \label{fig:README4}
    \end{figure}
    #+END_EXPORT
@@ -560,15 +566,14 @@ head -46 simutools09/instructions/01-onelink/log/trace-file-1-1.log
 =========================><=========================
 #+end_example
 
-** Runing in the Docker image
+** Running the simulation in the Docker image
 As the reader may have noted, the Docker image we produced only
 contains the binary code of the simulator but not the input files nor
 the perl script to run simulations. This is an intended separations of
-concerns and we believe it is a good practice  to keep images as
-lightweight as possible and easier to maintain.
-
-We now describe how manually to rerun the simulation. We should first
-run the docker container.
+concerns and we believe it is a good practice to keep images as
+lightweight as possible and easier to maintain. We now describe how
+manually to rerun the simulation. We should first run the docker
+container.
 #+begin_src shell :session *shell* :results output :exports both 
 docker run -ti alegrand38/simgrid3_3_gtnets
 #+end_src
@@ -590,14 +595,16 @@ It is then possible to substitute the target parameters in these XML
 files and to run the simulation in the container:
 #+begin_src shell :session *shell* :results output :exports both 
 cd /root/simutools09/01-onelink
-sed -e s/bw/1.000000e+05/g -e s/lt/0.00001/g onelink-p-template.xml > /tmp/onelink-p.xml
+sed -e s/bw/1.000000e+05/g -e s/lt/0.00001/g onelink-p-template.xml \
+    > /tmp/onelink-p.xml
 sed -e s/size/1000/g onelink-d-template.xml > /tmp/onelink-d.xml
 for model in CM02 GTNets LegrandVelho; do
     echo ">==================================================<"
     echo "========> Model     (M) : $model"
-    /root/simgrid-3.3/examples/msg/gtnets/gtnets     \
-       /tmp/onelink-p.xml  /tmp/onelink-d.xml       \
-       --cfg=workstation_model:compound --cfg=cpu_model:Cas01 --cfg=network_model:$model;
+    /root/simgrid-3.3/examples/msg/gtnets/gtnets              \
+       /tmp/onelink-p.xml  /tmp/onelink-d.xml                 \
+       --cfg=workstation_model:compound --cfg=cpu_model:Cas01 \ 
+       --cfg=network_model:$model;
 done;
 #+end_src
 
@@ -651,7 +658,7 @@ Dumping GTNETS topollogy information
 [C1:slave:(2) 0.010974] [msg_test/INFO] ===> Estimated Bw of FLOW[1] : 91128.086469 ;
   message from S1 to C1  with remaining : 0.000000
 #+end_example
-We recover exactly the expected values and reported on page~\pageref{expected-output}.
+We recover exactly the expected values which are reported on page \pageref{expected-output}.
 
 ** Replicating the first series of simulations
 Using the perl script should thus allow to reexecute the
@@ -707,7 +714,8 @@ gnuplot. This is uggly but all pretty standard so we decided there was
 no need to rebuild a dedicated analysis environment and that it should
 run direcly on our machine. Let's do all this in the ~/tmp~ to avoid
 messing up original data. To avoid messing up with the content of the
-original data, we decided to work in the =/tmp= of our machine as follows
+original data, we decided to work in the =/tmp= of our machine as
+follows:
 
 # :var CONTAINER=container
 #+begin_src shell :results output :exports both 
@@ -753,35 +761,79 @@ There were 15 warnings (use warnings() to see them)
 #+end_example
 
 When running, a gnuplot window with a 3D graph popped up. There are
-error messages but the ~Cadidates are X=0.934752791154703 and
-Y=10.6510810055123~ message is really cool as these are the latency and
-bandwidth modifiers obtained through a custom linear regression and
-this is very familiar. The original paper reports ~.92~ and ~10.4~ (page
-5). The difference comes from the fact that the regression we just run
-was done using a smaller set of simulations because I didn't want to
-wait. 
+error messages but the "~Cadidates are X=0.934752791154703 and
+Y=10.6510810055123~" message is really nice as these are the latency
+and bandwidth modifiers obtained through a custom linear regression
+and this is very familiar. The original paper reports ~.92~ and ~10.4~
+(page 5). The difference comes from the fact that the regression we
+just run was done using a smaller set of simulations because we didn't
+want to waste our time rerunning all the simulations.
 
 * Conclusion and take-away messages
 Although we only replicated a fraction of the simulations conducted in
 the original article, they all perfectly match and we are confident
 that all the results would be reproduced with a few additional hours
 of efforts and enough time to run all the simulations (several days
-actually). 
+actually). This is of little interest as GTNetS has been replaced in
+earlier versions of SimGrid by an other packet level simulator: [[http://www.nsnam.org][NS3]].
 
 We have shown in this article how to use modern tools such as the
 [[https://hub.docker.com/][Docker Hub]], the [[https://snapshot.debian.org/][Debian snapshot archive]], the [[https://github.com/debuerreotype/debuerreotype][Debuerreotype]], [[http://github.com/][GitHub]],
 and [[https://www.softwareheritage.org/][Software Heritage]]. We have tried to demonstrate and to highlight
 their effectiveness or potential shortcomings. Although they all
+require a relatively high level of operating system understanding and
+expertise, we believe they are all now mature enough and sufficiently
+easy to use both such kind of computer "archaeology" and for a daily
+usage (, which would greatly ease the task of anyone trying to reuse
+or reproduce the work).
 
-- Using the right tools to automate (R, perl, 
-- Automated workflow/notebook to document the process
-- Woul someone else have managed reproduce the work ?
+A sound question to ask is: "Would anyone other than the original
+authors have succeeded in reproducing this work?". A fair answer is
+probably no. 
+- First, three different archives were needed: the first one was easy
+  to find, the second one was publicly available but deeply hidden so
+  it is unlikely anyone else than the original authors would have
+  found it, and although the third one was also available on the
+  Internet, it was not very visible and we initially recovered from
+  the hard drive of one of the two original authors.
+- Second, even after gathering the three archives, rebuilding the
+  software environment, correctly linking and running the simulation
+  was possible but required such a good amount of faith that we
+  believe anyone else then the original authors would have easily
+  given up.
 
-- Cleaning up is rarely done after publishing, hence the need to do it
-  on the fly.
-- Perenial URLs
-- Software environment
-
+At the time of writing of the original article, Pedro Velho had put a
+significant effort in documenting the whole workflow and relying on
+standard tools such as =R=, =perl=, and =make= to automate as much as
+possible. Yet, we made the three following mistakes:
+1. We never reached the point where a full automation was done, in
+   particular as the whole set of simulations was done manually using a
+   cluster and we did not have satisfying tools to . If we had to redo
+   such work today, we would probably use something like [[https://snakemake.readthedocs.io/][=snakemake=]]
+   and [[http://orgmode.org/][=org-mode=]] notebooks to easily document and automate the whole
+   work.
+2. We underestimated the [[https://en.wikipedia.org/wiki/Link_rot][URL rot]] effect. Although all our work was
+   version controlled, moving from a development platform to an other
+   made information and archive retrieval more difficult than we
+   anticipate. Although all the archives were finally available, it
+   took us an inordinate amount of time to locate them.. Cleaning up
+   is rarely done after publishing, hence the need to do it on the
+   fly. It turns out that Pedro Velho had taken care to clean and to
+   make all the data he had produced during his PhD thesis available
+   on his [[http://mescal.imag.fr/membres/pedro.velho/publications.html][webpage]]. The policy in our lab is to maintain the webpage of
+   former members so all the data is still available. Using a
+   perennial archive such as [[http://zenodo.org/][Zenodo]] would be the recommended way to
+   proceed nowadays but this archive did not exist by then.
+3. Finally, we underestimated the importance of capturing every
+   information on software environment. A few ones related to
+   processor architecture and compilers were available but it was
+   lacunar. Fortunately, we only relied on standard open source
+   software and from the dates, it was not too hard to identify which
+   software must have been used and we have been able to rebuild a
+   functional software environment at low cost, solely from binary
+   packages. Controlling this environment and making it easily
+   available and usable is definitely the way to go with tools like
+   [[https://hub.docker.com/][Docker]] but this technique was not as easy to use back then.
 * Emacs setup                                                      :noexport:
 # Local Variables:
 # eval:    (require 'org-install)
