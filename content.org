@@ -28,7 +28,7 @@ visible only through the [[https://simgrid.org/publications.html][SimGrid public
  [[https://hal.inria.fr/inria-00361031][HAL]] when engaging in the replication process.
 #+LaTeX: \end{result}
 
-*  Historical Context
+* Historical Context
 This article compares the accuracy of two methods for predicting how
 competing TCP network flows interfere with each others. It is the
 first article Arnaud Legrand wrote with his first PhD student Pedro
@@ -468,7 +468,302 @@ dowload the code from [[https://www.softwareheritage.org/][software heritage]]. 
 the next reproducibility challenge in a decade or so.
 
 * Execution and reproduction of results
+** Expectations
+   Following the information from the README of each series of
+   simulations (see Figure \ref{fig:README4}), we could easily
+   determine which scripts to run (=sweep-parse.pl=). It is interesting
+   to note that the logs of each simulation was stored in the archive
+   (in =log/=) as well as the parsing of these logs (in =dat/=).
+   #+BEGIN_EXPORT latex
+   \begin{figure}
+     \centering
+     \VerbatimInput[label=\fbox{\color{black}simutools09/instructions/01-onelink/README}]{simutools09/instructions/01-onelink/README}
+     \caption{The README which the first set of experiments.}
+     \label{fig:README4}
+   \end{figure}
+   #+END_EXPORT
+
+Before trying to rerun all this, we ensured a specific parameter
+combination could be run manually check whether outputs are matching
+or not. Here was the target:
+
+#+begin_src shell :results output :exports both
+head -4 simutools09/instructions/01-onelink/dat/raw.data
+#+end_src
+
+#+RESULTS:
+: Bandwidth Latency Size Model Time
+: 1 1.000000e+05 0.00001 1000 CM02 0.010010
+: 2 1.000000e+05 0.00001 1000 GTNets 0.013140
+: 3 1.000000e+05 0.00001 1000 LegrandVelho 0.010974
+
+And here was the output we should get from running =gtnets=.\label{expected-output}
+#+begin_src shell :results output :exports both
+head -46 simutools09/instructions/01-onelink/log/trace-file-1-1.log
+#+end_src
+
+#+RESULTS:
+#+begin_example
+>==================================================<
+========> Bandwidth (B) : 1.000000e+05 B/s (Bytes per second)
+========> Latency   (L) : 0.00001 s (seconds)
+========> Size      (S) : 1000 B (Bytes) 
+========> Model     (M) : CM02
+[0.000000] [simix_kernel/INFO] setting 'workstation_model' to 'compound'
+[0.000000] [xbt_cfg/INFO] type in variable = 2
+[0.000000] [simix_kernel/INFO] setting 'cpu_model' to 'Cas01'
+[0.000000] [xbt_cfg/INFO] type in variable = 2
+[0.000000] [simix_kernel/INFO] setting 'network_model' to 'CM02'
+[0.000000] [xbt_cfg/INFO] type in variable = 2
+[S1:master:(1) 0.010010] [msg_test/INFO] Send completed (to C1). Transfer time: 0.010010
+	 Agregate bandwidth: 99900.099900
+[S1:master:(1) 0.010010] [msg_test/INFO] Completed peer: C1 time: 0.010010
+[C1:slave:(2) 0.010010] [msg_test/INFO] ===> Estimated Bw of FLOW[1] : 99900.099900 ;
+  message from S1 to C1  with remaining : 0.000000
+=========================><=========================
+>==================================================<
+========> Bandwidth (B) : 1.000000e+05 B/s (Bytes per second)
+========> Latency   (L) : 0.00001 s (seconds)
+========> Size      (S) : 1000 B (Bytes) 
+========> Model     (M) : GTNets
+[0.000000] [simix_kernel/INFO] setting 'workstation_model' to 'compound'
+[0.000000] [xbt_cfg/INFO] type in variable = 2
+[0.000000] [simix_kernel/INFO] setting 'cpu_model' to 'Cas01'
+[0.000000] [xbt_cfg/INFO] type in variable = 2
+[0.000000] [simix_kernel/INFO] setting 'network_model' to 'GTNets'
+[0.000000] [xbt_cfg/INFO] type in variable = 2
+[S1:master:(1) 0.013140] [msg_test/INFO] Send completed (to C1). Transfer time: 0.013140
+	 Agregate bandwidth: 76103.500761
+[S1:master:(1) 0.013140] [msg_test/INFO] Completed peer: C1 time: 0.013140
+[C1:slave:(2) 0.013140] [msg_test/INFO] ===> Estimated Bw of FLOW[1] : 76103.500761 ;
+  message from S1 to C1  with remaining : 0.000000
+=========================><=========================
+>==================================================<
+========> Bandwidth (B) : 1.000000e+05 B/s (Bytes per second)
+========> Latency   (L) : 0.00001 s (seconds)
+========> Size      (S) : 1000 B (Bytes) 
+========> Model     (M) : LegrandVelho
+[0.000000] [simix_kernel/INFO] setting 'workstation_model' to 'compound'
+[0.000000] [xbt_cfg/INFO] type in variable = 2
+[0.000000] [simix_kernel/INFO] setting 'cpu_model' to 'Cas01'
+[0.000000] [xbt_cfg/INFO] type in variable = 2
+[0.000000] [simix_kernel/INFO] setting 'network_model' to 'LegrandVelho'
+[0.000000] [xbt_cfg/INFO] type in variable = 2
+[S1:master:(1) 0.010974] [msg_test/INFO] Send completed (to C1). Transfer time: 0.010974
+	 Agregate bandwidth: 91128.086469
+[S1:master:(1) 0.010974] [msg_test/INFO] Completed peer: C1 time: 0.010974
+[C1:slave:(2) 0.010974] [msg_test/INFO] ===> Estimated Bw of FLOW[1] : 91128.086469 ;
+  message from S1 to C1  with remaining : 0.000000
+=========================><=========================
+#+end_example
+
+** Runing in the Docker image
+As the reader may have noted, the Docker image we produced only
+contains the binary code of the simulator but not the input files nor
+the perl script to run simulations. This is an intended separations of
+concerns and we believe it is a good practice  to keep images as
+lightweight as possible and easier to maintain.
+
+We now describe how manually to rerun the simulation. We should first
+run the docker container.
+#+begin_src shell :session *shell* :results output :exports both 
+docker run -ti alegrand38/simgrid3_3_gtnets
+#+end_src
+# #+begin_src shell :session *shell* :results output :exports both 
+# mkdir -p /root/simutools09/01-onelink
+# #+end_src
+Then the input files should be copied within the container (=$CONTAINER=
+corresponds to the container id of the contrainter and is obtained
+either using =docker ps= or by querying the =hostname= within the
+container).
+#  :var CONTAINER=container
+#+begin_src shell :results output :exports both
+docker cp simutools09/instructions/01-onelink/onelink-d-template.xml \
+       $CONTAINER:/root/simutools09/01-onelink
+docker cp simutools09/instructions/01-onelink/onelink-p-template.xml \
+       $CONTAINER:/root/simutools09/01-onelink
+#+end_src
+It is then possible to substitute the target parameters in these XML
+files and to run the simulation in the container:
+#+begin_src shell :session *shell* :results output :exports both 
+cd /root/simutools09/01-onelink
+sed -e s/bw/1.000000e+05/g -e s/lt/0.00001/g onelink-p-template.xml > /tmp/onelink-p.xml
+sed -e s/size/1000/g onelink-d-template.xml > /tmp/onelink-d.xml
+for model in CM02 GTNets LegrandVelho; do
+    echo ">==================================================<"
+    echo "========> Model     (M) : $model"
+    /root/simgrid-3.3/examples/msg/gtnets/gtnets     \
+       /tmp/onelink-p.xml  /tmp/onelink-d.xml       \
+       --cfg=workstation_model:compound --cfg=cpu_model:Cas01 --cfg=network_model:$model;
+done;
+#+end_src
+
+#+RESULTS:
+#+begin_example
+>==================================================<
+========> Model     (M) : CM02
+echo 'org_babel_sh_eoe'
+echo 'org_babel_sh_eoe'
+[0.000000] [simix_kernel/INFO] setting 'workstation_model' to 'compound'
+[0.000000] [xbt_cfg/INFO] type in variable = 2
+[0.000000] [simix_kernel/INFO] setting 'cpu_model' to 'Cas01'
+[0.000000] [xbt_cfg/INFO] type in variable = 2
+[0.000000] [simix_kernel/INFO] setting 'network_model' to 'CM02'
+[0.000000] [xbt_cfg/INFO] type in variable = 2
+[S1:master:(1) 0.010010] [msg_test/INFO] Send completed (to C1). Transfer time: 0.010010
+	 Agregate bandwidth: 99900.099900
+[S1:master:(1) 0.010010] [msg_test/INFO] Completed peer: C1 time: 0.010010
+[C1:slave:(2) 0.010010] [msg_test/INFO] ===> Estimated Bw of FLOW[1] : 99900.099900 ;
+  message from S1 to C1  with remaining : 0.000000
+>==================================================<
+========> Model     (M) : GTNets
+[0.000000] [simix_kernel/INFO] setting 'workstation_model' to 'compound'
+[0.000000] [xbt_cfg/INFO] type in variable = 2
+[0.000000] [simix_kernel/INFO] setting 'cpu_model' to 'Cas01'
+[0.000000] [xbt_cfg/INFO] type in variable = 2
+[0.000000] [simix_kernel/INFO] setting 'network_model' to 'GTNets'
+[0.000000] [xbt_cfg/INFO] type in variable = 2
+<<<<<================================>>>>>
+Dumping GTNETS topollogy information
+== LINKID: 0
+  [SRC] ID: 0, router?: 0, hosts[]: [ 0]
+  [DST] ID: 1, router?: 0, hosts[]: [ 1]
+>>>>>================================<<<<<
+[S1:master:(1) 0.013140] [msg_test/INFO] Send completed (to C1). Transfer time: 0.013140
+	 Agregate bandwidth: 76103.500761
+[S1:master:(1) 0.013140] [msg_test/INFO] Completed peer: C1 time: 0.013140
+[C1:slave:(2) 0.013140] [msg_test/INFO] ===> Estimated Bw of FLOW[1] : 76103.500761 ;
+  message from S1 to C1  with remaining : 0.000000
+>==================================================<
+========> Model     (M) : LegrandVelho
+[0.000000] [simix_kernel/INFO] setting 'workstation_model' to 'compound'
+[0.000000] [xbt_cfg/INFO] type in variable = 2
+[0.000000] [simix_kernel/INFO] setting 'cpu_model' to 'Cas01'
+[0.000000] [xbt_cfg/INFO] type in variable = 2
+[0.000000] [simix_kernel/INFO] setting 'network_model' to 'LegrandVelho'
+[0.000000] [xbt_cfg/INFO] type in variable = 2
+[S1:master:(1) 0.010974] [msg_test/INFO] Send completed (to C1). Transfer time: 0.010974
+	 Agregate bandwidth: 91128.086469
+[S1:master:(1) 0.010974] [msg_test/INFO] Completed peer: C1 time: 0.010974
+[C1:slave:(2) 0.010974] [msg_test/INFO] ===> Estimated Bw of FLOW[1] : 91128.086469 ;
+  message from S1 to C1  with remaining : 0.000000
+#+end_example
+We recover exactly the expected values and reported on page~\pageref{expected-output}.
+
+** Replicating the first series of simulations
+Using the perl script should thus allow to reexecute the
+simulation. Unfortunately, it comprises hard-coded absolute paths and
+a few simple minor modifications had thus to be made. Here is how to proceed:
+- Within the container:
+  #+begin_src shell :session *shell* :results output :exports both 
+  mkdir -p /root/simutools09/01-onelink/bin
+  mkdir -p /root/simutools09/01-onelink/dat
+  mkdir -p /root/simutools09/01-onelink/log
+  mkdir -p /root/simutools09/01-onelink/tmp
+  #+end_src
+- Then outside the container:
+  # :var CONTAINER=container
+  #+begin_src shell :results output :exports both
+  docker cp simutools09/instructions/01-onelink/onelink-d-template.xml \
+	 $CONTAINER:/root/simutools09/01-onelink
+  docker cp simutools09/instructions/01-onelink/onelink-p-template.xml \
+	 $CONTAINER:/root/simutools09/01-onelink
+  docker cp simutools09/instructions/01-onelink/bin/sweep-parse.pl \
+	 $CONTAINER:/root/simutools09/01-onelink/bin/sweep-parse.pl
+  #+end_src
+- And finally back inside the container, we fix the absolute paths
+  and run the simulations:
+  #+begin_src shell :session *shell* :results output :exports both 
+  sed -i 's|/home/velho/Development/projet-simgrid/simgrid/examples/msg/gtnets|/root/simgrid-3.3/examples/msg/gtnets|g' \
+      /root/simutools09/01-onelink/bin/sweep-parse.pl
+  cd /root/simutools09/01-onelink/
+  ./bin/sweep-parse.pl sweep 1 1
+  #+end_src
+
+  #+RESULTS:
+  : cd /root/simutools09/01-onelink/
+  : ./bin/sweep-parse.pl sweep 1 1
+  : Bandiwthd array size is : 43
+  : Changing working directory to /root/simgrid-3.3/examples/msg/gtnets
+  : =============================================================<
+  : Bandwidth (B) : 1.000000e+05 B/s (Bytes per second)
+  : Latency   (L) : 0.00001 s (seconds)
+  : Size      (S) : 1000 B (Bytes)
+
+  This worked like a charm! Unfortunately, according to the script,
+  there are $40\times15= 600$ (latency, bw) combinations, which take each a
+  bit more than a minute to run, hence about 10 hours solely for the
+  first series of experiments. We did not let it run to the end but we
+  checked that the parsing works and that all results matched for a
+  hundred of combinations.
+
+** Running the analysis of the first series of experiments.
+The analysis depends on master R script
+(=simutools09/instructions/01-onelink/analyze.R=) which invokes perl and
+gnuplot. This is uggly but all pretty standard so we decided there was
+no need to rebuild a dedicated analysis environment and that it should
+run direcly on our machine. Let's do all this in the ~/tmp~ to avoid
+messing up original data. To avoid messing up with the content of the
+original data, we decided to work in the =/tmp= of our machine as follows
+
+# :var CONTAINER=container
+#+begin_src shell :results output :exports both 
+mkdir -p /tmp/simutools09/01-onelink/dat/
+mkdir -p /tmp/simutools09/01-onelink/log/
+mkdir -p /tmp/simutools09/01-onelink/tmp/
+mkdir -p /tmp/simutools09/01-onelink/bin/
+docker cp $CONTAINER:/root/simutools09/01-onelink/dat/raw.data /tmp/simutools09/01-onelink/dat/
+cp simutools09/01-onelink/analyze.R /tmp/simutools09/01-onelink/
+cp simutools09/01-onelink/bin/* /tmp/simutools09/01-onelink/bin/
+#+end_src
+
+#+begin_src R :results output :session *R* :exports both :dir /tmp/simutools09/01-onelink/
+source("analyze.R");
+#+end_src
+
+#+RESULTS:
+#+begin_example
+# Latency (SECONDS) Size (BYTES) Time (SECONDS) 
+Relax this may take some time
+...........................................................
+...........................................................
+...........................................................
+..................................................
+Cadidates are X=0.934752791154703 and Y=10.6510810055123
+The min is approximatelly: 0.0466609377572045
+[1] "Hello!!!"
+-Inf & NaN & NA \\ 
+-Inf & NaN & NA \\ 
+-Inf & NaN & NA \\ 
+-Inf & NaN & NA \\ 
+-Inf & NaN & NA \\ 
+-Inf & NaN & NA \\ 
+9.524 87.72 490.2 905.8 989.7   999 999.9-Inf & NaN & NA \\ 
+-Inf & NaN & NA \\ 
+-Inf & NaN & NA \\ 
+-Inf & NaN & NA \\ 
+"./tmp/gnuplotError.script" line 4: undefined variable: Inf
+
+"./tmp/gnuplotError.script" line 4: undefined variable: Inf
+
+There were 15 warnings (use warnings() to see them)
+#+end_example
+
+When running, a gnuplot window with a 3D graph popped up. There are
+error messages but the ~Cadidates are X=0.934752791154703 and
+Y=10.6510810055123~ message is really cool as these are the latency and
+bandwidth modifiers obtained through a custom linear regression and
+this is very familiar. The original paper reports ~.92~ and ~10.4~ (page
+5). The difference comes from the fact that the regression we just run
+was done using a smaller set of simulations because I didn't want to
+wait. 
+
 * Conclusion
+Although we only replicated a fraction of the simulations conducted in
+the original article, they all perfectly match and we are confident
+that all the results would be reproduced with a few additional hours
+of efforts and enough time to run all the simulations (several days
+actually).
 
 - Using the right tools to automate (R, perl, 
 - Automated workflow/notebook to document the process
@@ -478,3 +773,21 @@ the next reproducibility challenge in a decade or so.
   on the fly.
 - Perenial URLs
 - Software environment
+
+* Emacs setup                                                      :noexport:
+# Local Variables:
+# eval:    (require 'org-install)
+# eval:    (org-babel-do-load-languages 'org-babel-load-languages '( (shell . t) (R . t) (perl . t) (ditaa . t) ))
+# eval:    (add-to-list 'org-latex-packages-alist '("" "minted"))
+# eval:    (setq org-latex-listings 'minted)
+# eval:    (setq org-latex-minted-options '(("bgcolor" "grispale") ("frame" "lines") ("linenos" "true") ("fontsize" "\\small")))
+# eval:    (setq org-latex-pdf-process '("lualatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
+# eval:    (setq org-alphabetical-lists t)
+# eval:    (setq org-src-fontify-natively t)
+# eval:    (setq ispell-local-dictionary "american")
+# eval:    (eval (flyspell-mode t))
+# eval:    (add-to-list 'load-path ".")
+# eval:    (require 'ox-extra)
+# eval:    (ox-extras-activate '(ignore-headlines))
+# End:
+

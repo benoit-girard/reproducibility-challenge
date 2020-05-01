@@ -5,6 +5,16 @@
 \usepackage{boxedminipage}
 \usepackage{amssymb}
 
+% Changing the size of \texttt
+\let\oldtexttt=\texttt
+\renewcommand{\texttt}[1]{{\small\oldtexttt{#1}}}
+
+% Setup for code inputs and verbatim output
+\usepackage[langlinenos=true]{minted}
+%\usepackage{verbatim,DejaVuSansMono}
+\definecolor{violet}{rgb}{0.5,0,0.5}\definecolor{bleu}{rgb}{.18,.3,.68}
+\definecolor{grispale}{rgb}{0.9,0.9,0.9}
+
 % redefine \VerbatimInput
 \RecustomVerbatimCommand{\VerbatimInput}{VerbatimInput}%
 {fontsize=\scriptsize,
@@ -20,6 +30,10 @@
 %                      % commands within the verbatim
 % commentchar=*        % comment character
 }
+% \RecustomVerbatimEnvironment{\Verbatim}{Verbatim}%
+% {frame=single,gobble=2}
+\RecustomVerbatimEnvironment{Verbatim}{Verbatim}{fontsize=\footnotesize}
+\DefineVerbatimEnvironment{VerbatimOutput}{Verbatim}{fontsize=\scriptsize,frame=single}
 
 \begin{document}
 \input{header.tex}

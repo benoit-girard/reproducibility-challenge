@@ -5,41 +5,32 @@ last modified : 03/11/2008
  Disclaimer
 #################################
 
-This text as well as the data and results provided here are under
-GPL copyright. To consult the GPL terms and usage condition see in the
-top directory:
+This text as well as the data and results provided here are under GPL copyright. To consult the GPL
+terms and usage condition see in the top directory: GPL.txt
 
-GPL.txt
+All programs use the gtnets.c simulation program. A source code copy is located in this directory.
 
-All programs use the gtnets.c simulation program. A source 
-code copy is located in this directory.
-
-CAUTION:
-This script relies on parsing the output, so every modification (even
-slight ones) on gtnets.c output may cause the parsing feature to
-unpredicted behavior. If you are not sure about your gtnets.c file
-please use the one distributed here.
+CAUTION: This script relies on parsing the output, so every modification (even slight ones) on
+gtnets.c output may cause the parsing feature to unpredicted behavior. If you are not sure about
+your gtnets.c file please use the one distributed here.
 
 #################################
  Short History
 #################################
 
-This directory hold experiment comparing the SimGrid framework
-network simulation engine with GTNets. GTNets is a packet level
-network simulator and we believe it can provide realistic 
-transmission time prediction due to its characteristic of
-simulating through discrete events the entire TCP protocol stack.
-This work is the normal continuation of the work presented
-by Kayo Fujiwara and Henry Casanova in [1] and was submitted to 
-the SimuTools09 conference which is still to be evaluated and
-accepted/reject.
+This directory hold experiment comparing the SimGrid framework network simulation engine with
+GTNets. GTNets is a packet level network simulator and we believe it can provide realistic
+transmission time prediction due to its characteristic of simulating through discrete events the
+entire TCP protocol stack.  This work is the normal continuation of the work presented by Kayo
+Fujiwara and Henry Casanova in [1] and was submitted to the SimuTools09 conference which is still to
+be evaluated and accepted/reject.
 
 #################################
  Directory Structure
 #################################
 
-Three category of experiments were performed. Each one was tackled
-separately and are organize in distinct directories as follows:
+Three category of experiments were performed. Each one was tackled separately and are organize in
+distinct directories as follows:
 
 * ./01-onelink  - Verify message size communication time correlation
 * ./02-dumbbell - Bandwidth sharing experiments
@@ -49,13 +40,11 @@ separately and are organize in distinct directories as follows:
  Global System Requirements
 #################################
 
-Experiments and analyze scripts are provided to reproduce the
-graphs presented in [FIXME(Rapport de recherche ou reference
-simutools]. To run experiments some minimum system requirements are
-needed:
+Experiments and analyze scripts are provided to reproduce the graphs presented in [FIXME(Rapport de
+recherche ou reference simutools]. To run experiments some minimum system requirements are needed:
 
-* GTNets patched simgrid version, we kindly provide GTNets with
-  patches in the simgrid contrib svn repository [FIXME]
+* GTNets patched simgrid version, we kindly provide GTNets with patches in the simgrid contrib svn
+  repository [FIXME]
 * SimGrid, configured and compiled with GTNets support [FIXME]
 
 For plotting graphs and explore the data:
