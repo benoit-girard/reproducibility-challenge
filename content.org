@@ -187,8 +187,17 @@ integrated in the main branch of SimGrid.
 *The second challenge would thus be to manage to correctly modify and
 recompile a simulator using both libraries.*
 
+   #+BEGIN_EXPORT latex
+   \begin{figure}[!h]
+     \includegraphics[width=\linewidth]{figures/workflow.pdf}
+     \caption{The simulation workflow}
+     \label{fig:workflow}
+   \end{figure}
+   #+END_EXPORT
+
 Although these details were not given in the articles, the general
-workflow of the simulations for all three scenarios was as follow:
+workflow of the simulations for all three scenarios was as follow
+(see Figure \ref{fig:workflow}):
 - A simple =C= code called =gtnets.c= was linked against SimGrid and
   GTNetS;
 - A =perl= script called =sweep-parse.pl= (when called with the =sweep=
@@ -299,20 +308,36 @@ topology and data used in the third series of experiments*.
    that can be found in each sub-archive describes in details how to
    rerun the experiments and corresponds to the process described in
    Section \ref{sec:comp.context}. Unfortunately, the master README
-   (see Figure \ref{fig:README1} provides information about dates and
+   (see Figure \ref{fig:README1}) provides information about dates and
    the contents of the archive but most information related to
    software versions are broken (it was a working version, which we
    intended to consolidate when the article would be
    accepted). Furthermore, after a thorough inspection of the GTNetS
-   archive, we realized it did not seem to have been patched.
+   archive, we realized it did not seem to have been patched. Last,
+   the third archive contained all the random graphs used in the
+   simulation, hence saving us the burden of trying to regenerate them
+   with BRITE.
  - Arnaud Legrand therefore started searching again for gtnets
    versions that would be on his laptop and finally found it, along
    with all the patches and compiling instructions which are crucial
    to correctly build such prototype software (see
-   Figure \ref{fig:README2}. These information were actually public
+   Figure \ref{fig:README2}). These information were actually public
    but had become completely hidden in the (now unmaintained and long
    forgotten) contrib section of the SVN (while git is now the default
    version manager) of the Inria Gforge SimGrid project.
+
+   #+LaTeX: \begin{result} 
+   *We have now ensured that the GTNetS version and the patches we
+   used are archived on Software Heritage.*\footnote{The save request was done on 4/30/2020, 6:50:02 PM but it is still pending.}
+   #+LaTeX: \end{result}
+
+   #+BEGIN_EXPORT latex
+   \begin{figure}[!h]
+     \includegraphics[width=\linewidth]{figures/archives.pdf}
+     \caption{The three archives required to reproduce this work.}
+     \label{fig:archives}
+   \end{figure}
+   #+END_EXPORT
 
    #+BEGIN_EXPORT latex
    \begin{figure}[!htbp]
@@ -325,12 +350,8 @@ topology and data used in the third series of experiments*.
    \end{figure}
    #+END_EXPORT
 
-   #+LaTeX: \begin{result} 
-   *We have now ensured that the GTNetS version and the patches we
-   used are archived on Software Heritage.*\footnote{The save request was done on 4/30/2020, 6:50:02 PM but it is still pending.}
-   #+LaTeX: \end{result}
-
-In the end, we have thus managed to recover three important archives,
+In the end, we have thus managed to recover three important archives
+(see Figure \ref{fig:archives}),
 whose versions should be the one run to produce the results of the
 original SimuTools 2009 article:
 1. The stable release =v3.3= of SimGrid (from April 2009) from the public
@@ -340,9 +361,10 @@ original SimuTools 2009 article:
 2. A snapshot of GTNetS from January 2008 along with the patches to
    apply from the public Inria Gforge but which was not visible
    anymore.
-3. The simulation instructions and data from one of the author's hard
-   drive.
-No information regarding the software environment is available except
+3. The simulation instructions and data, first from one of the
+   author's hard drive although they were also available from his
+   website but both authors had somehow forgotten about it.
+No information regarding the software environment was available except
 that it was run on a Debian in the late 2008.
 ** Rebuilding the software environment
 SimGrid is mostly a C library whose software dependencies had at that
@@ -854,8 +876,5 @@ possible. Yet, we made the three following mistakes:
 # eval:    (setq org-src-fontify-natively t)
 # eval:    (setq ispell-local-dictionary "american")
 # eval:    (eval (flyspell-mode t))
-# eval:    (add-to-list 'load-path ".")
-# eval:    (require 'ox-extra)
-# eval:    (ox-extras-activate '(ignore-headlines))
 # End:
 
