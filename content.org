@@ -4,7 +4,7 @@
 #+OPTIONS:   TeX:t LaTeX:nil skip:nil d:nil todo:t pri:nil tags:not-in-toc
 
 #+LaTeX: \newcounter{result}
-#+LaTeX: \newenvironment{result}{\begin{boxedminipage}{\linewidth}\textit{\refstepcounter{result}Action \#\arabic{result}:}}{\end{boxedminipage}}
+#+LaTeX: \newenvironment{result}{\begin{boxedminipage}{\linewidth}\textit{\refstepcounter{result}\uline{Action \#\arabic{result}:}}\bf}{\end{boxedminipage}}
 #+LaTeX: \let\leq=\leqslant
 #+LaTeX: \let\geq=\geqslant
 
@@ -349,7 +349,7 @@ software environment as close as possible.
 The codename for a stable Debian distribution at that time was
 /Lenny/. Debian provides two particularly interesting tools to reproduce
 "old" environments:
-1. The [[https://snapshot.debian.org/][snapshot archive]] is a wayback machine that allows access to
+1. The [[https://snapshot.debian.org/][Debian snapshot archive]] is a wayback machine that allows access to
    old packages based on dates and version numbers. It consists of all
    past and current packages the Debian archive provides.
 2. The [[https://github.com/debuerreotype/debuerreotype][Debuerreotype]] is a reproducible, snapshot-based Debian rootfs
@@ -457,7 +457,10 @@ docker build -t alegrand/simgrid3_3_gtnets simgrid3.3_gtnets
   comprising the simulation code used in the original article. This
   Dockerfile recipe has been made available in the [[https://github.com/alegrand/reproducibility-challenge/tree/master/simutools09/simgrid3.3_gtnets/][GitHub repository
   attached to this Rescience submission]]. The resulting docker image
-  has been made available on the [[https://hub.docker.com/repository/docker/alegrand38/simgrid3_3_gtnets][DockerHub]].
+  has been made available on the [[https://hub.docker.com/repository/docker/alegrand38/simgrid3_3_gtnets][DockerHub]]. It can be recovered using:
+  #+begin_src shell :results output :exports both
+  docker pull alegrand38/simgrid3_3_gtnets
+  #+end_src
 #+LaTeX: \end{result}
 
 Note that, as such, this Dockerfile is still a bit fragile as it
@@ -758,12 +761,17 @@ this is very familiar. The original paper reports ~.92~ and ~10.4~ (page
 was done using a smaller set of simulations because I didn't want to
 wait. 
 
-* Conclusion
+* Conclusion and take-away messages
 Although we only replicated a fraction of the simulations conducted in
 the original article, they all perfectly match and we are confident
 that all the results would be reproduced with a few additional hours
 of efforts and enough time to run all the simulations (several days
-actually).
+actually). 
+
+We have shown in this article how to use modern tools such as the
+[[https://hub.docker.com/][Docker Hub]], the [[https://snapshot.debian.org/][Debian snapshot archive]], the [[https://github.com/debuerreotype/debuerreotype][Debuerreotype]], [[http://github.com/][GitHub]],
+and [[https://www.softwareheritage.org/][Software Heritage]]. We have tried to demonstrate and to highlight
+their effectiveness or potential shortcomings. Although they all
 
 - Using the right tools to automate (R, perl, 
 - Automated workflow/notebook to document the process
