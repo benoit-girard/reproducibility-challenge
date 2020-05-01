@@ -661,20 +661,22 @@ Dumping GTNETS topollogy information
 [C1:slave:(2) 0.010974] [msg_test/INFO] ===> Estimated Bw of FLOW[1] : 91128.086469 ;
   message from S1 to C1  with remaining : 0.000000
 #+end_example
-We recover exactly the expected values which are reported on page \pageref{expected-output}.
+We could thus recover exactly the expected values which are reported on page \pageref{expected-output}.
 
 ** Replicating the first series of simulations
 Using the perl script should thus allow to re-execute the
 simulation. Unfortunately, it comprises hard-coded absolute paths and
 a few simple minor modifications had thus to be made. Here is how to proceed:
-- Within the container:
+- Within the container, we first create the directories that will
+  host the simulation results:
   #+begin_src shell :session *shell* :results output :exports both 
   mkdir -p /root/simutools09/01-onelink/bin
   mkdir -p /root/simutools09/01-onelink/dat
   mkdir -p /root/simutools09/01-onelink/log
   mkdir -p /root/simutools09/01-onelink/tmp
   #+end_src
-- Then outside the container:
+- Then outside the container, we copy the template input files and
+  simulation perl script:
   # :var CONTAINER=container
   #+begin_src shell :results output :exports both
   docker cp simutools09/instructions/01-onelink/onelink-d-template.xml \
@@ -685,7 +687,7 @@ a few simple minor modifications had thus to be made. Here is how to proceed:
 	 $CONTAINER:/root/simutools09/01-onelink/bin/sweep-parse.pl
   #+end_src
 - And finally back inside the container, we fix the absolute paths
-  and run the simulations:
+  before running the simulations:
   #+begin_src shell :session *shell* :results output :exports both 
   sed -i 's|/home/velho/Development/projet-simgrid/simgrid/examples/msg/gtnets|/root/simgrid-3.3/examples/msg/gtnets|g' \
       /root/simutools09/01-onelink/bin/sweep-parse.pl
