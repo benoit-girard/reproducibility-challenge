@@ -3,11 +3,455 @@
 #+OPTIONS:   H:5 num:t toc:nil \n:nil @:t ::t |:t ^:t -:t f:t *:t <:t
 #+OPTIONS:   TeX:t LaTeX:nil skip:nil d:nil todo:t pri:nil tags:not-in-toc
 
-Trying to reproduce \cite{velho:inria-00361031}. Let's get started!
+#+LaTeX: \newcounter{result}
+#+LaTeX: \newenvironment{result}{\begin{boxedminipage}{\linewidth}\textit{\refstepcounter{result}Action \#\arabic{result}:}}{\end{boxedminipage}}
 
-#+begin_src python :results output :exports both
-print(3+2)
+
+This paper reports the successful reproduction of the results in a
+article \cite{velho:inria-00361031} entitled /Accuracy Study and
+Improvement of Network Simulation in the SimGrid Framework/, which has
+been published at the SimuTools 2009 conference. In this article, we
+detail several pitfalls we stumbled upon during this process and
+report the actions we took to improve the reproducibility of this
+work.
+
+The first action we took is related to the visibility and availabiliy
+of this article. Open access was not mandated by the funders of this
+research at the time of publication and the only the bibliography
+entry was available on HAL. The preprint was hosted on our [[http://mescal.imag.fr/membres/arnaud.legrand/articles/simutools09.pdf][webpage]] and
+visible only through the [[https://simgrid.org/publications.html][SimGrid publication webpage]].
+
+#+LaTeX: \begin{result} 
+  The original article has thus been uploaded on [[https://hal.inria.fr/inria-00361031][HAL]] when engaging in
+ the replication process.
+#+LaTeX: \end{result}
+
+*  Historical Context
+This article compares the accuracy of two methods for predicting how
+competing TCP network flows interfere with each others. It is the
+first article Arnaud Legrand wrote with his first PhD student Pedro
+Velho. It was already a reproduction of the
+work \cite{fujiwara2007speed} of close colleagues, Henri Casanova and
+Kayo Fujiwara, and we already had faced difficulties in doing so at
+that time. Actually, we could never obtain the exact same numbers as
+them despite their care and ours. This failure motivated us to improve
+our methodology, and in particular switching to R, but it was 10 years
+ago. It was thus a good test of time!
+
+** Scientific context
+[[https://simgrid.org][SimGrid]] is a simulation toolking allowing to evaluate the performance
+of large scale distributed computing systems such as data grids,
+desktop grids, clusters or peer-to-peer systems. In this field, it is
+common to resort to simulation which enable to (in theory)
+reproducible results and allow to explore many application and
+platform scenarios, including platforms which do not exist
+yet. Unfortunately, as noted in \cite{P2P_survey}, in this field most
+people build their own ``ad-hoc'' simulators which are rarely
+validated (, which makes final results quite questionable) nor made
+available (, which hinders both reproducibility of results and
+comparison of articles with one anothers). SimGrid is an attempt to
+provide a high quality simulation toolkit, which would be stable and
+perenial from a software point of view and whose models would be as
+validated as possible against reality and other simulators.
+
+In this context, network simulation is certainly the most critical
+part and packet-level simulation are thus often considered as
+particularly realistic and faithful since they try to account for
+every detail of the network protocols. Unfortunately, such /microscopic/
+approach is undoubtedly interesting when studying peculiarities of
+network protocols, it leads to prohibitively long simulation time when
+studying large-scale distributed systems. An alternative is thus to
+simulate networks by relying on higer level, /macroscopic/ models, thus
+enabling much faster simulation at the potential cost of an accuracy
+loss. SimGrid, uses a flow-level approach that approximates the
+behavior of TCP networks, including TCP's bandwidth sharing
+properties. A preliminary study of the accuracy loss by comparing it
+to popular packet-level simulators has been proposed
+in \cite{fujiwara2007speed} and in which regimes in which SimGrid's
+accuracy was comparable to that of these packet-level simulators were
+identified. The article we reproduce here \cite{velho:inria-00361031}
+was a reproduction these experiments and provided a deeper analysis
+that enabled to greatly improve SimGrid's range of validity. 
+
+The network is modeled as a graph where nodes represent hosts while
+edges represent network links. In SimGrid's flow-level modeling, the
+time needed to transfer a message of size $S$ between hosts $i$ and
+$j$ is given by:
+#+BEGIN_EXPORT latex
+\begin{equation}
+  \label{eq:linearity}
+  T_{i,j}(S) = L_{i,j} + S/B_{i,j},
+\end{equation}
+#+END_EXPORT
+where $L_{i,j}$ (resp. $B_{i,j}$) is the end-to-end network latency
+(resp. bandwidth) on the route connecting $i$ and $j$. Although
+determining $L_{i,j}$ may be straightforward, estimating the bandwidth $B_{i,j}$
+is more difficult as it depends on interactions with
+every other flow. This is generally done by assuming that the flow has
+reached /steady-state/, in which case the simulation amounts to
+solving a bandwidth sharing problem, i.e., determining how much
+bandwidth is allocated to each flow. 
+
+#+LaTeX: \def\L{\ensuremath{\mathcal{L}}\xspace}
+#+LaTeX: \def\F{\ensuremath{\mathcal{F}}\xspace}
+More formally, consider a connected network that consists of a set of
+links \L, in which each link $l$ has capacity $B_l$. Consider a set of
+flows \F, where each flow is a communication between two network
+vertices along a given path. Determine a ``realistic'' bandwidth
+allocation $\rho_f$ for flow $f$, so that:
+#+BEGIN_EXPORT latex
+  \begin{equation}
+    \label{eq:cnsts}
+    \forall l\in\L, \sum_{\text{$f$ \text{going through} $l$}} \rho_f \leq
+    B_l\;.
+  \end{equation}
+#+END_EXPORT
+In SimGrid, the ``realistic'' bandwidth sharing
+model \cite{rr-lip2002-40} used is Max-min
+fairness \cite{massoulie99bandwidth}, which is reached by recursively
+maximizing
+#+BEGIN_EXPORT latex
+  \begin{equation}
+  \min_{f\in\F} w_f \rho_f \quad \text{under
+    constraints in Eq.~\eqref{eq:cnsts},}\;
+  \label{OptMaxmin}
+\end{equation}
+#+END_EXPORT
+where $w_f$ is generally chosen as the round-trip time of flow
+$f$. This objective corresponds to what one would naively expect
+from a network, i.e. be ``as fair as possible'' so that the least
+favored flows receive as much bandwidth as possible while accounting
+through weights $w_f$ for the well-known RTT-unfairness of
+TCP \cite{rtt-fairness}.
+
+Given the computed bandwidth allocation (which defines all data
+transfer rates), and the size of the data to be transmitted by each
+flow, one can determine which flow will complete first. Upon
+completion of a flow, or upon arrival of a new flow, the bandwidth
+allocation can be reevaluated. Compared to a packet-level simulation,
+this approach allows to quickly step-forward in time when large data
+transfers are involved. However, since steady-state is assumed, it
+ignores many transient aspects such as throughput oscillations, and
+slow start. This work was later extended to compare with other
+bandwidth sharing models \cite{velho:hal-00872476} and has been the
+core of the PhD thesis of Pedro
+Velho \cite{madeiradecamposvelho:tel-00625497}.
+
+In the article we reproduce, the accuracy of the /flow-level/
+simulations of SimGrid are compared to the /packet-level/ simulations of
+GTNetS \cite{GTNetS} the Georgia Tech Network Simulator. This was done
+through three series of simulations
+1. One-link: The first set of experiments is for a single TCP flow
+   going through a single link with varying physical *latency* and
+   *bandwidth*, and message *size*. The main goal of this scenario is to
+   study the size for which transient effects such as slow start are
+   negligible.
+2. A Dumbell Topology: The second set of experiments is for two TCP
+   flows A and B on a dumbbell topology with varying *bandwidth* of the
+   inner link and *latency* of the end-link used by flow B. The main
+   goal of this scenario is to study the ability of accounting for
+   RTT-unfairness.
+3. Random Topology: 4 sets of 10 random topologies generated with two
+   topology generators were used. The sets comprised either small (50
+   nodes) or large (200 nodes) and either relatively homogeneous or
+   heterogeneous platforms. 200 flows were generated between random
+   pairs of end-points in the topology, which all start simultaneously
+   and communicate 100MB of data. The main goal of this scenario is to
+   evaluate the overall accuracy of SimGrid and possibly to detect
+   corner-case situations for which the SimGrid model was particularly
+   wrong.
+
+Due to the long simulation time, we only reproduce in this article the
+first series of simulation but we checked that we could easily run at
+least one simulation of the two other series.
+** Computational context
+\label{sec:comp.context}
+[[https://simgrid.org/][SimGrid]] is mostly written in =C= while [[http://griley.ece.gatech.edu/MANIACS/GTNetS/][GTNetS]] is mostly written in =C++=
+and both are open source simulators. Although SimGrid is designed to
+be as stand alone as possible GTNetS relies on third party
+libraries. *The first challenge would thus be to reproduce a software
+environment allowing to recompile and rerun both libraries*.
+
+To ease the comparison of both simulators, SimGrid had been modified
+to run GTNetS internally, which allowed to easily switch between the
+microscopic (GTNetS) model and the macroscopic (Max-Min) model from
+the command line, while using the exact same platform description and
+communication scenario. This integration required modifying both
+SimGrid and GTNetS and was done through a set of patches before being
+integrated in the main branch of SimGrid.
+*The second challenge would thus be to manage to correctly modify and
+recompile a simulator using both libraries.*
+
+Although these details were not given in the articles, the general
+workflow of the simulations for all three scenarios was as follow:
+- A simple =C= code called =gtnets.c= was linked against SimGrid and
+  GTNetS;
+- A =perl= script called =sweep-parse.pl= (when called with the =sweep=
+  argument) would generate platform and flow/deployment =XML= input
+  files and run all simulations by passing the previous =XML= input file
+  to the =gtnets= binary with a different command line argument to
+  switch between the GTNetS model and the Max-Min model. The
+  simulation would produce a text output.
+- The same =perl= script (when called with the =parse= argument) would
+  then parse all the text logs and produce a =csv= data file.
+- The data file would then be analyzed with an =R= script and since our
+  mastery of =R= was quite low at that time, we still relied on gnuplot
+  to generate figures.
+
+*The third challenge would thus be to manage to run all this workflow,
+provided the right instructions could be found.*
+
+Note that although the first two series of experiments did not have
+much external dependencies, the third one relied on many random
+network topologies generated by BRITE \cite{brite}, which is a
+dicontinued =Java= software, using the Waxman model \cite{Waxman}. The
+description of the parameters used to generate the topologies were
+shallow and there was no information regarding seeds so our hope to
+rerun this software to regenerate the same topologies was quite
+low. However, theses intermediate files may have been stored and made
+available. *The fourth challenge would thus be to recover the network
+topology and data used in the third series of experiments*.
+
+* Rebuilding the code and its environment
+** Original source code and retrieval of the software
+*** Instructions
+ Although the development of SimGrid is still very active, GTNetS'
+ development appears to be discontinued as the last version of GTNetS
+ dates back October 2008. Finding both source code is relatively easy
+ however, the main difficulty was to find the instructions and to know
+ which version to use. SimGrid has successively moved from the [[https://gforge.inria.fr/projects/simgrid/][Inria
+ gforge]] to the [[https://gitlab.inria.fr/simgrid/simgrid/][Inria gitlab]], [[http://github.com/simgrid/simgrid/][GitHub]], and more recently
+ [[https://framagit.org/simgrid/simgrid/][Framagit]]. Although the whole software history has been correctly moved
+ in the process, we realized some information have not been transfered
+ and even sometimes lost:
+ - Although we could have used a development version of SimGrid from
+   late 2009, we thought it would be simpler to reproduce this work
+   using a stable release (e.g., the version 3.3, which dates from
+   April 2009). Unfortunately, the [[https://github.com/simgrid/simgrid/releases?after=v3_8_1][releases of SimGrid on GitHub]] only
+   start from May 2010.  Indeed, although the SimGrid git history
+   starts from 2004 (, when migrating from CVS to SVN), when the
+   development team decided to migrate from subversion to git (in
+   2010), the SVN tags have not been transfered. Fortunately, the old
+   releases of SimGrid are still available on the [[https://gforge.inria.fr/projects/simgrid/][Inria gforge]]. 
+
+   #+LaTeX: \begin{result} 
+     We have thus now uploaded the original release of SimGrid version 3.3 on [[https://github.com/simgrid/simgrid/releases/tag/v3.3][Github]].
+   #+LaTeX: \end{result}
+ - The \LaTeX source of the article is stored in the private [[https://gforge.inria.fr/scm/?group_id=862][Inria
+   Gforge simgrid-publis]] project, in an =svn= under the
+   =PUBLISHED/09_validation_simutools= directory. 
+
+   #+LaTeX: \begin{result} 
+     We have now made the source of the article available in the [[https://github.com/alegrand/reproducibility-challenge/tree/master/simutools09/article/][github
+     repository attached to this Rescience submission]].
+   #+LaTeX: \end{result}
+ - We know that we made our instructions on how conduct these
+   experiments available somewhere but no link was given in the
+   original article and we could not really remember where it was as
+   there was no standard way of doing so back then. We though they were
+   given on the former =contrib/= section of
+   http://simgrid.gforge.inria.fr/ (, which was hard to maintain and
+   was thus abandonned) or on http://simgrid-publis.gforge.inria.fr/ (,
+   which finally only hosts data on two articles from 2011). However
+   after inspecting the [[https://web.archive.org/web/20091120124838/http://simgrid.gforge.inria.fr/doc/contrib.html][Internet Archive]], we could not find it.
+ - Arnaud Legrand therefore tried them on his laptop but although he
+   could find many related files (including the topology generators) he
+   failed finding the right data and doing so, he realized many the
+   data of some of his previously published articles were dangling
+   links and had not been correctly transfered when migrating from a
+   laptop to an other! The instructions could probably have been
+   recovered on backup hard drives but he had the chance to meet Pedro
+   Velho and to ask him whether his own backups were in better shape,
+   which was fortunately the case. Pedro Velho could find all the
+   required data (a 61MB zip archive) and shared it through
+   dropbox. This data may be still available somewhere on the Internet
+   but as we had recovered it, we have not put additional efforts.
+
+   #+LaTeX: \begin{result} 
+     We have now made the instructions and data available in the
+     [[https://github.com/alegrand/reproducibility-challenge/tree/master/simutools09/instructions][GitHub repository attached to this Rescience submission]].
+   #+LaTeX: \end{result}
+
+   #+BEGIN_EXPORT latex
+   \begin{figure}
+     \centering
+     \VerbatimInput[label=\fbox{\color{black}simutools09/instructions/README}]{simutools09/instructions/README}
+     \caption{dfd}
+     \label{fig:README1}
+   \end{figure}
+   #+END_EXPORT
+
+   This archive comprises 3 sub-archives corresponding to each of the
+   3 series of simulations mentioned earlier (=01-onelink.tgz=,
+   =02-dumbbell.tgz=, =03-random.tgz=) as well as a GTNetS version
+   (=GTNetS-Oct-10-08.tar.gz=) and the master simulation file (=gtnets.c=)
+   which should be compiled against SimGrid and GTNetS. The README
+   that can be found in each subarchives describes in details how to
+   rerun the experiments and corresponds to the process described in
+   Section \ref{sec:comp.context}. Unfortunately, the master README
+   (see Figure \ref{fig:README1} provides information about dates and
+   the contents of the archive but most information related to
+   software versions are broken (it was a working version, which we
+   intended to consolidate when the article would be
+   accepted). Furthermore, after a thorough inspection of the GTNetS
+   archive, we realized it did not seem to have been patched.
+ - Arnaud Legrand therefore started searching again for gtnets
+   versions that would be on his laptop and finally found it, along
+   with all the patches and compiling instructions which are crucial
+   to correctly build such prototype software. These information were
+   actually public but had become completely hidden in the (now
+   unmaintained and long forgotten) contrib section of the SVN (while
+   git is now the default version manager) of the Inria Gforge SimGrid
+   project.
+
+   #+LaTeX: \begin{result} 
+     *We have now ensured that this piece of software is archived on
+     Software Heritage.*\footnote{The save request was done on 4/30/2020, 6:50:02 PM but it is still pending.}
+   #+LaTeX: \end{result}
+
+In the end, we have thus managed to recover three important archives,
+whose versions should be the one run to produce the results of the
+original Simutools09 article:
+1. The stable release =v3.3= of SimGrid (from April 2009) from the public
+   Inria Gforge. Although experiments were probably run in late 2008,
+   the previous stable SimGrid release is from 2007 and =v3.3=
+   incorporates everything that was needed.
+2. A snapshot of GTNetS from January 2008 along with the patches to
+   apply from the public Inria Gforge but which was not visible
+   anymore.
+3. The simulation instructions and data from one of the author's hard
+   drive.
+No information regarding the software environment is available except
+that it was run on a Debian in the late 2008.
+** Rebuilding the software environment
+SimGrid is mostly a C library whose software dependencies had at that
+time been kept to the bare minimum (C and C++ compiler). Furthermore,
+we are developers of the SimGrid library so building it was rather
+straightforward. However, after trying to compile GTNetS, we realized
+it depends on the Qt3 GUI Library whereas the version which is now
+commonly found is Qt5! Therefore, we decided to recreate a minimal
+software environment as close as possible. 
+
+The codename for a stable Debian distribution at that time was
+/Lenny/. Debian provides two particularly interesting tools to reproduce
+"old" environments:
+1. The [[https://snapshot.debian.org/][snapshot archive]] is a wayback machine that allows access to
+   old packages based on dates and version numbers. It consists of all
+   past and current packages the Debian archive provides.
+2. The [[https://github.com/debuerreotype/debuerreotype][Debuerreotype]] is a reproducible, snapshot-based Debian rootfs
+   builder. It allows to prepare from old debian images from the
+   snapshot archive, which is particularly useful to build Docker
+   images containing old software environments.
+
+Pedro and myself regularly used =testing= so after investigating a bit
+on the snapshot archive which versions of the libraries and when they
+had been introduced, we decided to try to bootstrap a debian Lenny
+from the 1st of May 2009 with the following command:
+#+LaTeX: \bgroup\footnotesize
+#+begin_src shell :session *shell* :results output :exports both
+debuerreotype-init --keyring=/usr/share/keyrings/debian-archive-removed-keys.gpg \
+   rootfs testing 2009-05-01-T03:27:08Z
+#+end_src
+#+LaTeX: \egroup
+Building such an image involves installing (with =dpkg=) old packages in
+a subdirectory pretending you are root. The =keyring= argument passed to
+=debuerreotype-init= allows to indicate =dpkg= that it is safe to install
+these old packages even if they have been signed by package
+maintainers which are currently not active anymore. Unfortunately,
+although this approach worked like a charm for more recent target
+dates (e.g., =2015-06-04-T10:47:50Z=), it miserably fails with a
+"Segmentation fault" when installing =base-passwd:=
+#+LaTeX: \bgroup\footnotesize
+#+BEGIN_EXAMPLE
+W: Failure trying to run: chroot "/home/alegrand/Work/Documents/Articles/2020/
+        reproducibility_challenge/simgrid3.3_gtnets/rootfs" dpkg --force-depends 
+             --install /var/cache/apt/archives/base-passwd_3.5.21_amd64.deb
+W: See /home/alegrand/Work/Documents/Articles/2020/reproducibility_challenge/
+         simgrid3.3_gtnets/rootfs/debootstrap/debootstrap.log for details
+
+error: 'debootstrap' failed!
+#+END_EXAMPLE
+#+LaTeX: \egroup
+
+We then decided to cry for help and asked two Debian guru friends,
+Vincent Danjean and Samuel Thibault. Samuel indicated me that he would
+investigate this by simply using
+#+LaTeX: \bgroup\footnotesize
+#+begin_src shell :results output :exports both
+  debootstrap wheezy myroot http://archive.debian.org/debian/
+#+end_src
+#+LaTeX: \egroup
+and that the error message was then slightly more visible
+#+LaTeX: \bgroup\footnotesize
+  #+BEGIN_EXAMPLE
+  dpkg: warning: parsing file '/var/lib/dpkg/status' near line 5 package 'dpkg':
+   missing description
+  
+  Package: dpkg
+  Status: install ok installed
+  Maintainer: unknown
+  Version: 1.16.18
+  #+END_EXAMPLE
+#+LaTeX: \egroup
+When bootstraping such an image, we try to use old debian packages
+with a recent =dpkg= (the one running on our machine) so it is not
+surprising that it may break. After all, the internal format of Debian
+packages could have evolved and may not be supported anymore with
+recent versions of =dpkg=. Likewise, it is somehow a matter of luck that
+an old binary still works with a recent kernel... Indeed, when using
+docker or similar container-based approach, we only divert syscalls so
+if the ABI of the Linux kernel had changed in the meantime, binary
+codes would simply fail to run. Fortunately, such changes are quite
+rare and the Linux/Debian community is making incredible efforts to
+provide super stable backward compatible software so what could be the
+reason behind this failure?
+
+Surprisingly Vincent Danjean reported me that the command worked like
+a charm for him, which means some local configuration of my or from
+his machine could change this behavior. We could actually track back
+the problem to an ABI modification of the kernel. As explained for
+example on the [[https://einsteinathome.org/content/vsyscall-now-disabled-latest-linux-distros][Einstein@Home forum]], \bgroup\em"On latest Linux distros, =vsyscall=
+is defaulted to none for security reasons. However, this breaks some
+very old binaries, including some binaries from this project that are
+statically-linked against ancient versions of glibc"\egroup. Vincent had
+activated this a long time ago to run some old proprietary code.
+Booting the machine while adding ~vsyscall=emulate~ to the kernel
+command line allows ~debuerreotype~ to build the desired rootfs.
+
+Since this is a bit far-fetched, I decided to check whether
+ready-to-use Docker images were available on the Docker Hub, [[https://hub.docker.com/r/lpenz/debian-lenny-i386/][which is
+the case]]. After playing a bit interactively in this Docker image
+trying to install everything I needed to build GTNetS and SimGrid, I
+ended up with the Dockerfile presented in Figure \ref{fig:dockerfile}.
+
+   #+BEGIN_EXPORT latex
+   \begin{figure}
+     \centering
+     \VerbatimInput[label=\fbox{\color{black}simutools09/simgrid3.3\_gtnets/Dockerfile}]{simutools09/simgrid3.3_gtnets/Dockerfile}
+     \caption{dfd}
+     \label{fig:dockerfile}
+   \end{figure}
+   #+END_EXPORT
+
+This image can be simply build with the following command:
+#+begin_src shell :results output :exports both
+docker build -t alegrand/simgrid3_3_gtnets simgrid3.3_gtnets
 #+end_src
 
-#+RESULTS:
-: 5
+#+LaTeX: \begin{result} 
+  We have now an automated way to build a minimalistic environment
+  comprising the simulation code used in the original article. This
+  Dockerfile recipe has been made available in the [[https://github.com/alegrand/reproducibility-challenge/tree/master/simutools09/simgrid3.3_gtnets/][GitHub repository
+  attached to this Rescience submission]].
+#+LaTeX: \end{result}
+* Execution and reproduction of results
+* Conclusion
+
+- Using the right tools to automate (R, perl, 
+- Automated workflow/notebook to document the process
+- Woul someone else have managed reproduce the work ?
+
+- Cleaning up is rarely done after publishing, hence the need to do it
+  on the fly.
+- Perenial URLs
+- Software environment
