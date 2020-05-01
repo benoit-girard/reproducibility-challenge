@@ -63,9 +63,7 @@ $ cp -fr SRC/*.h /<userhome>/usr/include/gtnets
 
 Compilling SimGrid with GTNetS
 ------------------------------
-Just add the following option when running configure
-
---with-gtnets=/<userhome>/usr
+Just add the following option when running configure --with-gtnets=/<userhome>/usr
 
 Bug reports, comments, suggestions: pedro.velho{\at}imag.fr
 

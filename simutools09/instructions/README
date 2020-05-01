@@ -20,7 +20,6 @@ slight ones) on gtnets.c output may cause the parsing feature to
 unpredicted behavior. If you are not sure about your gtnets.c file
 please use the one distributed here.
 
-
 #################################
  Short History
 #################################
@@ -43,11 +42,8 @@ Three category of experiments were performed. Each one was tackled
 separately and are organize in distinct directories as follows:
 
 * ./01-onelink  - Verify message size communication time correlation
-
 * ./02-dumbbell - Bandwidth sharing experiments
-
 * ./03-random   - Complex platforms to assure model improvements
-
 
 #################################
  Global System Requirements
@@ -60,7 +56,6 @@ needed:
 
 * GTNets patched simgrid version, we kindly provide GTNets with
   patches in the simgrid contrib svn repository [FIXME]
-
 * SimGrid, configured and compiled with GTNets support [FIXME]
 
 For plotting graphs and explore the data:
@@ -73,13 +68,6 @@ For plotting graphs and explore the data:
 #################################
 
 [FIXME] The R (GNU S) language website. FIXME URL
-
 [FIXME] Plotting scientific data with Gnuplot. FIXME URL
-
 [FIXME] SimGrid website. FIXME URL
-
 [FIXME] Kayo Fujiwara and Henry Casanova FIXME
-
-
-
-

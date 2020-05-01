@@ -5,6 +5,8 @@
 
 #+LaTeX: \newcounter{result}
 #+LaTeX: \newenvironment{result}{\begin{boxedminipage}{\linewidth}\textit{\refstepcounter{result}Action \#\arabic{result}:}}{\end{boxedminipage}}
+#+LaTeX: \let\leq=\leqslant
+#+LaTeX: \let\geq=\geqslant
 
 
 This paper reports the successful reproduction of the results in a
@@ -276,7 +278,9 @@ topology and data used in the third series of experiments*.
    \begin{figure}
      \centering
      \VerbatimInput[label=\fbox{\color{black}simutools09/instructions/README}]{simutools09/instructions/README}
-     \caption{dfd}
+     \caption{The README which accompanies instructions recovered from Pedro Velho on the 
+          simulation workflow are very helpful to understand the general process but 
+          lack important version information.}
      \label{fig:README1}
    \end{figure}
    #+END_EXPORT
@@ -308,7 +312,8 @@ topology and data used in the third series of experiments*.
    \begin{figure}
      \centering
      \VerbatimInput[label=\fbox{\color{black}simutools09/README.patching\_GTNetS}]{simutools09/README.patching_GTNetS}
-     \caption{dfd}
+     \caption{The README which accompanies the GTNetS patches provides many critical information on
+          how to compile GTNetS and SimGrid.}
      \label{fig:README2}
    \end{figure}
    #+END_EXPORT
@@ -442,18 +447,26 @@ docker build -t alegrand/simgrid3_3_gtnets simgrid3.3_gtnets
    \begin{figure}
      \centering
      \VerbatimInput[label=\fbox{\color{black}simutools09/simgrid3.3\_gtnets/Dockerfile}]{simutools09/simgrid3.3_gtnets/Dockerfile}
-     \caption{dfd}
+     \caption{The Dockerfile recipe which allows to build both GTNetS and Simgrid}
      \label{fig:dockerfile}
    \end{figure}
    #+END_EXPORT
-
 
 #+LaTeX: \begin{result} 
   We have now an automated way to build a minimalistic environment
   comprising the simulation code used in the original article. This
   Dockerfile recipe has been made available in the [[https://github.com/alegrand/reproducibility-challenge/tree/master/simutools09/simgrid3.3_gtnets/][GitHub repository
-  attached to this Rescience submission]].
+  attached to this Rescience submission]]. The resulting docker image
+  has been made available on the [[https://hub.docker.com/repository/docker/alegrand38/simgrid3_3_gtnets][DockerHub]].
 #+LaTeX: \end{result}
+
+Note that, as such, this Dockerfile is still a bit fragile as it
+depends on a third party base image (=lpenz/debian-lenny-i386=) and
+downloads the code from =gforge.inria.fr=. Ideally, it would be improved
+to build on my own =debuerreotype= image for a specific date and to
+dowload the code from [[https://www.softwareheritage.org/][software heritage]]. We propose to leave this for
+the next reproducibility challenge in a decade or so.
+
 * Execution and reproduction of results
 * Conclusion
 
