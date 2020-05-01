@@ -1,0 +1,13 @@
+<?xml version='1.0'?>
+<!DOCTYPE platform SYSTEM "simgrid.dtd">
+<platform version="2">
+  <host id="S1" power="1000000000"/>
+  <host id="C1" power="1000000000"/>
+
+  <link id="1" bandwidth="bw" latency="lt"/>
+
+  <route src="S1" dst="C1">
+     <link:ctn id="1"/>
+  </route>
+
+</platform>

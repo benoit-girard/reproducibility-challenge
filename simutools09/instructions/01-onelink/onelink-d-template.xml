@@ -1,0 +1,15 @@
+<?xml version='1.0'?>
+<!DOCTYPE platform SYSTEM "simgrid.dtd">
+<platform version="2">
+
+  <process host="S1" function="master">
+      <argument value="size"/>
+      <argument value="C1"/>
+      <argument value="1"/>
+  </process>
+
+  <process host="C1" function="slave">
+    <argument value="1"/>
+  </process>
+
+</platform>
