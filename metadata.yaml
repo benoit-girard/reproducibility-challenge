@@ -14,7 +14,7 @@ authors:
     orcid: 0000-0002-8415-1046
     email: arnaud.legrand@imag.fr
     affiliations: 1,2,3,4,5,*      # * is for contact author
-    
+
   - name: Pedro Velho
     email: pedro.velho@gmail.com
     affiliations: 6
@@ -26,27 +26,27 @@ affiliations:
   - code:    1
     name:    Univ. Grenoble Alpes
     address: Grenoble, France
-    
+
   - code:    2
     name:    CNRS
     address: Délégation Alpes, Grenoble, France
-    
+
   - code:    3
     name:    INRIA Rhone Alpes
     address: Grenoble, France
-    
+
   - code:    4
     name:    Grenoble INP (Institute of Engineering Univ. Grenoble Alpes)
     address: Grenoble, France
-    
+
   - code:    5
     name:    Laboratoire d'Informatique de Grenoble, CNRS UMR5217
     address: 38000 Grenoble, France
-          
+
   - code:    6
     name:    Ryax Technologies
     address: Lyon, France
-    
+
 
 # List of keywords (adding the programming language might be a good idea)
 keywords: rescience c, C, perl, R, simulation, SimGrid
@@ -57,8 +57,8 @@ keywords: rescience c, C, perl, R, simulation, SimGrid
 #   see https://guides.github.com/activities/citable-code/
 code:
   - url: https://github.com/alegrand/reproducibility-challenge
-  - doi: 
-  - swh: 
+  - doi:
+  - swh:
 
 # Data URL and DOI (optional if no data)
 data:
@@ -67,17 +67,17 @@ data:
 
 # Information about the original article that has been replicated
 replication:
- - cite: # Full textual citation
+ - cite: Velho, P., & Legrand, A. (2009). Accuracy study and improvement of network simulation in the simgrid framework. In SIMUTools' 09, 2nd International Conference on Simulation Tools and Techniques. # Full textual citation
  - bib:  velho:inria-00361031
  - url:  https://hal.inria.fr/inria-00361031/file/simutools09.pdf
- - doi:  # Regular digital object identifier
+ - doi: 10.4108/ICST.SIMUTOOLS2009.5592 # Regular digital object identifier
 
 # Don't forget to surround abstract with double quotes
-abstract: "This is a test"
+abstract: "Distributed computing is a very broad and active research area comprising fields such as cluster computing, computational grids, desktop grids and peer-to-peer (P2P) systems. Studies in this area generally resort to simulations, which enable reproducible results and make it possible to explore wide ranges of platform and application scenarios. In this context, network simulation is certainly the most critical part. Many packet-level network simulators are available and enable high-accuracy simulation but they lead to prohibitively long simulation times. Therefore, many simulation frameworks have been developed that simulate networks at higher levels, thus enabling fast simulation but losing accuracy. One such framework, SimGrid, uses a flow-level approach that approximates the behavior of TCP networks, including TCP's bandwidth sharing properties. A preliminary study of the accuracy loss by comparing it to popular packet-level simulators has been proposed in [11] and in which regimes in which SimGrid's accuracy is comparable to that of these packet-level simulators are identified. In this article we come back on this study, reproduce these experiments and provide a deeper analysis that enables us to greatly improve SimGrid's range of validity."
 
 # Bibliography file (yours)
 bibliography: bibliography.bib
-  
+
 # Type of the article
 # Type can be:
 #  * Editorial
@@ -96,35 +96,32 @@ language: C
 # -----------------------------------------------------------------------------
 
 # For example, the URL of the GitHub issue where review actually occured
-review: 
-  - url: 
+review:
+  - url: https://github.com/ReScience/submissions/issues/39
 
 contributors:
-  - name:
-    orcid: 
+  - name: Benoît Girard
+    orcid: 0000-0002-8117-7064
     role: editor
-  - name:
-    orcid:
-    role: reviewer
-  - name:
-    orcid:
+  - name: Rémy Grünblatt
+    orcid: 0000-0002-9146-9888
     role: reviewer
 
 # This information will be provided by the editor
 dates:
-  - received:  November 1, 2018
-  - accepted:
-  - published: 
+  - received:  May 4, 2020
+  - accepted:  March 9, 2021
+  - published: March 12, 2021
 
 # This information will be provided by the editor
 article:
-  - number: # Article number will be automatically assigned during publication
-  - doi:    # DOI from Zenodo
-  - url:    # Final PDF URL (Zenodo or rescience website?)
+  - number: 20 # Article number will be automatically assigned during publication
+  - doi:   10.5281/zenodo.4600846 # DOI from Zenodo
+  - url:   https://zenodo.org/record/4600846/files/article.pdf # Final PDF URL (Zenodo or rescience website?)
 
 # This information will be provided by the editor
 journal:
   - name:   "ReScience C"
   - issn:   2430-3658
-  - volume: 4
+  - volume: 6
   - issue:  1
